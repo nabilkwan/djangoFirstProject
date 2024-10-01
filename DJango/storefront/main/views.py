@@ -3,16 +3,32 @@ from django.db import transaction
 from django.db.models import Sum
 from django.db.models.functions import ExtractMonth
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.contrib.auth.forms import AuthenticationForm
 from .models import Item, Inbound, Category, Outbound
 from .forms import InboundForm, OutboundForm, InboundEditForm, OutboundEditForm
+from functools import wraps
 from datetime import datetime
+from django.contrib.auth import logout
+from django.views.decorators.http import require_http_methods
 
 # Create your views here.
 
+def unauthenticated_user(view_func):
+    @wraps(view_func)
+    def wrapper_func(request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return view_func(request, *args, **kwargs)
+        else:
+            return render(request, 'main/base.html')
+    return wrapper_func
+
+def login_form(request):
+    return {'form': AuthenticationForm()} if not request.user.is_authenticated else {}
 
 def home(request):
     return render(request, "main/home.html")
 
+@unauthenticated_user
 def inventory_operation(request, operation): #create inbound/outbound transaction
     if operation not in ['inbound', 'outbound']:
         return HttpResponseBadRequest("Invalid operation")
@@ -72,6 +88,7 @@ def inventory_table(request, operation, id):
     
     return render(request, template, context)
 
+@unauthenticated_user
 def update_record(request, operation):
     if operation not in ['inbound', 'outbound']:
         return HttpResponseBadRequest("Invalid operation")
@@ -93,6 +110,7 @@ def update_record(request, operation):
 
     return HttpResponseBadRequest("Invalid request method")
 
+@unauthenticated_user
 def delete_record(request, operation):
     if operation not in ['inbound', 'outbound']:
         return HttpResponseBadRequest("Invalid operation")
@@ -169,4 +187,8 @@ def get_inventory_data(request):
         'outbound': outbound_result
     })
 
+@require_http_methods(["GET", "POST"])
+def logout_view(request):
+    logout(request)
+    return render(request, 'main/logout.html')
 

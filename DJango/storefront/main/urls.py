@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -16,4 +16,7 @@ urlpatterns = [
     
     path("item/<int:id>", views.item, name="item"), # /item/
     path('get_inventory_data/', views.get_inventory_data, name='get_inventory_data'), #get data for graph
+    path('', include("django.contrib.auth.urls")),
+    path('logout/', views.logout_view, name='logout'),
+
 ]

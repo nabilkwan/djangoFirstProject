@@ -10,12 +10,14 @@
 Choose Category for Inbound Items
 {%endblock%}
 {% block in_out_form %}
+    {% if user.is_authenticated %}
         <h2>Add Inbound Item</h2>
         <form action="/inbound/" method="post">
             {% csrf_token %}
             {{form.as_p}}
             <button type="submit">Add</button>
         </form>
+    {% endif %}
 {% endblock %}
 
 {% block table_url %}/inbound/table/{% endblock %}

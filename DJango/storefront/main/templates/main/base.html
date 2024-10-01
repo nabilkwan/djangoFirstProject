@@ -11,7 +11,7 @@
 
     <title>Artiselite{%block title%}Base{%endblock%}</title>
     <style type="text/css">
-        button:not(.homeButton):not(#sidenavToggle) {
+        button:not(.homeButton):not(#sidenavToggle){
             align-items: center;
             appearance: none;
             background-color: #FCFCFD;
@@ -42,16 +42,16 @@
             font-size: 18px;
         }
 
-        button:focus:not(.homeButton):not(#sidenavToggle) {
+        button:focus:not(.homeButton):not(#sidenavToggle){
             box-shadow: #D6D6E7 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
         }
 
-        button:hover:not(.homeButton):not(#sidenavToggle) {
+        button:hover:not(.homeButton):not(#sidenavToggle){
             box-shadow: rgba(45, 35, 66, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
             transform: translateY(-2px);
         }
 
-        button:active:not(.homeButton):not(#sidenavToggle) {
+        button:active:not(.homeButton):not(#sidenavToggle){
             box-shadow: #D6D6E7 0 3px 7px inset;
             transform: translateY(2px);
         }
@@ -137,6 +137,10 @@
             cursor: pointer;
         }
 
+        #logoutButton{
+            margin-top:500px;
+        }
+
 
         @media screen and (min-width: 768px) {
             .sidenav {
@@ -169,16 +173,13 @@
         <div class="eachnav" ><a href="/outbound">Outbound</a></div>
         <div class="eachnav" id="bottomnav"><a href="/register">Register</a></div>
         {% if user.is_authenticated %}
-            <div class="eachnav">
+            <div class="eachnav" id="logoutButton">
                 <form method="post" action="{% url 'logout' %}">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-link">Logout</button>
+                    <a><button type="submit" class="sideButton">Logout</button></a>
                 </form>
             </div>
-        {% else %}
-            <div class="eachnav"><a href="{% url 'login' %}">Login</a></div>
         {% endif %}
-    </div>
     </div>
 
     <div id="content" name="content" class="main">
@@ -186,9 +187,24 @@
             {% block content %}
             {% endblock %}
         {% else %}
-            <h1>Access Denied</h1>
-            <p>Please <a href="{% url 'login' %}">Login</a> to access this page.</p>
-        {% endif %}
+        {% block login_form %}
+        <h1>Login</h1>
+        <div class="m-5">
+            <form method="POST" action="{% url 'login' %}" class="form-group">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username">Username:</label>
+                    <input type="text" name="username" class="form-control" required id="id_username">
+                </div>
+                <div class="form-group">
+                    <label for="id_password">Password:</label>
+                    <input type="password" name="password" class="form-control" required id="id_password">
+                </div>
+                <button type="submit" class="btn btn-success">Login</button>
+            </form>
+        </div>
+        {% endblock %}
+    {% endif %}
     </div>
 
     <script>
