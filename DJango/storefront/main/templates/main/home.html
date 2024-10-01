@@ -1,0 +1,293 @@
+
+{% extends "main/base.html" %}
+
+{% block title %}
+    Home
+{% endblock %}
+{% block content %}
+    <h1 class="p-3">Home Page</h1>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+    <style type = text/css>
+        /*display*/
+        .home_content{
+          display:block;
+        }
+
+        #changes{
+          padding-bottom:30px;
+        }
+
+        .combobox{
+          margin-left:80%;
+          display:block;
+        }
+
+        /*graph*/
+        .home_graphs{
+          width:30%;
+          height:20%;
+          display:row;
+        }
+
+        /* reset button */
+        button {
+            appearance: none;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            outline: none;
+            padding: 0;
+            margin: 0;
+            font-family: inherit;
+            font-size: inherit;
+            color: inherit;
+            text-decoration: none;
+            text-transform: none;
+            line-height: normal;
+            overflow: visible;
+        }
+        
+        nav {
+            --_clr-txt: rgb(255, 255, 255);
+            --_clr-txt-svg: rgb(147, 158, 184);
+            --_ani-speed: 6s; /* speed of rotating text */
+        
+            display: flex;
+            /*flex-wrap: wrap;*/
+            gap: 1rem;
+            font-size: 1.4rem;
+        }
+        nav>button {
+            position: relative;
+            display: grid;
+            place-content: center;
+            grid-template-areas: 'stack';
+            padding: 0 1.5rem;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+        
+        /* place button items on top of each other */
+        nav>button>span {
+            transition: all 300ms ease-in-out;
+            grid-area: stack;
+        }
+        /* nav icon */
+        nav>button>span:last-of-type {
+            margin-top: 0.25rem;
+            transform: scale(0);
+            transition-delay: 0ms;
+            border-radius: 50%;
+        }
+        /* hover - hide text */
+        nav>button:focus-visible>span:first-of-type,
+        nav>button:hover>span:first-of-type {
+            transform: scale(0);
+        }
+        /* hover - reveal icon */
+        nav>button:focus-visible>span:last-of-type,
+        nav>button:hover>span:last-of-type {
+            transform: scale(1);
+        }
+        
+        /* nav SVG circular text*/
+        nav>button>svg {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transform-origin: center;
+            opacity: 0;
+            text-transform: uppercase;
+            transition: all 300ms ease-in-out;
+            color: var(--_clr-txt-svg);
+        }
+        /* hover - reveal rotating SVG */
+        nav>button:focus-visible>svg,
+        nav>button:hover>svg {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            transition-delay: 150ms;
+            transition: all 300ms ease-in-out;
+        }
+
+         button svg g {
+            transform-origin: center;
+            animation: rotate var(--_ani-speed) linear infinite;
+         }
+        
+        
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+    </style>
+    <div class="home_content" id="changes">
+        <nav>
+            <button type="button" title="Electronic" data-url="{% url 'item' 1 %}" class="homeButton">
+              <span>Electronic</span>
+              <span class="material-symbols-outlined" aria-hidden="true">electronic</span>
+              <svg viewBox="0 0 300 300" aria-hidden="true">
+                <g>
+                  <text fill="currentColor">
+                    <textPath xlink:href="#circlePath">Electronic</textPath>
+                  </text>
+                  <text fill="currentColor">
+                    <textPath xlink:href="#circlePath" startOffset="50%">Electronic</textPath>
+                  </text>
+                </g>
+              </svg>
+            </button>
+            <button type="button" title="Furniture" data-url="{% url 'item' 2 %}" class="homeButton">
+              <span>Furniture</span>
+              <span class="material-symbols-outlined" aria-hidden="true">furniture</span>
+              <svg viewBox="0 0 300 300" aria-hidden="true">
+                <g>
+                  <text fill="currentColor">
+                    <textPath xlink:href="#circlePath">Furniture</textPath>
+                  </text>
+                  <text fill="currentColor">
+                    <textPath xlink:href="#circlePath" startOffset="50%">Furniture</textPath>
+                  </text>
+                </g>
+              </svg>
+            </button>
+            <button type="button" title="Clothing" data-url="{% url 'item' 3 %}" class="homeButton">
+              <span>Clothing</span>
+              <span class="material-symbols-outlined" aria-hidden="true">clothing</span>
+              <svg viewBox="0 0 300 300" aria-hidden="true">
+                <g>
+                  <text fill="currentColor">
+                    <textPath xlink:href="#circlePath">Clothing</textPath>
+                  </text>
+                  <text fill="currentColor">
+                    <textPath xlink:href="#circlePath" startOffset="50%">Clothing</textPath>
+                  </text>
+                </g>
+              </svg>
+            </button>
+          
+          <!-- SVG template with dynamic text -->
+          <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 300" width="0" height="0">
+            <defs>
+              <path id="circlePath" d="M 150, 150 m -50, 0 a 50,50 0 0,1 100,0 a 50,50 0 0,1 -100,0" />
+            </defs>
+          </svg>
+    </div>
+
+    <div class="home_content">
+      <span class="combobox"><label for="year_combobox">Choose a year</label>
+      <select id="year_combobox"></select></span>
+      <canvas id="inbound_graph" class="home_graphs"></canvas>
+      <canvas id="outbound_graph" class="home_graphs"></canvas>
+    </div>
+
+    <script>
+        document.querySelectorAll('#changes button').forEach(button => {
+            button.addEventListener('click', function() {
+                const url = this.getAttribute('data-url');
+                if (url) {
+                    window.location.href = url;
+                }
+            });
+        });
+
+        function createYearOptions() {
+          var min = 2024,
+              max = 2050,
+              select = document.getElementById('year_combobox');
+          
+          for (var i = min; i <= max; i++) {
+              var opt = document.createElement('option');
+              opt.value = i;
+              opt.innerHTML = i;
+              select.appendChild(opt);
+          }
+      }
+
+      createYearOptions(); 
+
+      document.getElementById('year_combobox').addEventListener('change',function(){
+        const selectedYear = this.value;
+        updateChartsForYear(selectedYear);
+      }); 
+    
+
+      fetch('{% url "get_inventory_data" %}')
+        .then(response => response.json())
+        .then(data => {
+            inboundChart = createChart('inbound_graph', 'Inbound Items', data.inbound);
+            outboundChart = createChart('outbound_graph', 'Outbound Items', data.outbound);
+        });        
+
+      function createChart(canvasId, title, data) {
+        const ctx = document.getElementById(canvasId).getContext('2d');
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: data.map((category, index) => ({
+                    label: category.name,
+                    data: category.data,
+                    borderColor: getColor(index),
+                    fill: false
+                }))
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: title
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        type: 'category',
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                    }
+                }
+            }
+        });
+      }
+
+      function getColor(index) {
+        const colors = ['red', 'blue', 'green', 'orange', 'purple'];
+        return colors[index % colors.length];
+      }
+
+      function updateChartsForYear(year) {
+      // Fetch new data for the selected year
+        fetch(`{% url "get_inventory_data" %}?year=${year}`)
+          .then(response => response.json())
+          .then(data => {
+              updateChart(inboundChart, data.inbound);
+              updateChart(outboundChart, data.outbound);
+          })
+          .catch(error => console.error('Error fetching data:', error));
+      }
+
+      function updateChart(chart, newData) {
+          chart.data.datasets = newData.map((category, index) => ({
+            label: category.name,
+            data: category.data,
+            borderColor: getColor(index),
+            fill: false
+          }));
+      chart.options.title.text = `${chart.options.title.text} (${document.getElementById('year_combobox').value})`;
+      chart.update();
+      }
+
+    </script>
+{% endblock %}

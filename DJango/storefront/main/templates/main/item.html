@@ -1,0 +1,25 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+    {{category.category}} Category
+{% endblock %}
+
+{% block content %}
+    <h1>{{category.category}}</h1>
+    <ul>
+    {% for item in items %}
+        <li>
+            <p>Name: {{item.name}}</p>
+            <p>SKU: {{item.sku}}</p>
+            {% if item.quantity %}
+                <p>Quantity: {{item.quantity}}</p>
+            {% endif %}
+            {% if item.supplier %}
+                <p>Supplier: {{item.supplier}}</p>
+            {% endif %}
+        </li>
+    {% empty %}
+        <p>No items found in this category.</p>
+    {% endfor %}
+    </ul>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "main/in_out_template.html" %}
+
+{% block in_out_title %}
+    Outbound Items
+{% endblock %}
+
+{% block in_out_header %}
+    Choose Category for Outbound Items
+{% endblock %}
+
+{% block in_out_form %}
+    <h2>Add Outbound Item</h2>
+    <form action="/outbound/" method="post">
+        {% csrf_token %}
+        {{form.as_p}}
+        <button type="submit">Add</button>
+    </form>
+{% endblock %}
+
+{% block table_url %}/outbound/table/{% endblock %}

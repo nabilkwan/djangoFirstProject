@@ -1,0 +1,68 @@
+{% extends "main/base.html" %}
+
+{% block title %}
+    {% block in_out_title %}{% endblock %}
+{% endblock %}
+
+{% block content %}
+{% load static%}
+    <style>
+        .category-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .category-image {
+            flex: 0 0 auto;
+            max-width:100%;
+            max-height:90%;
+        }
+        .category-button {
+            flex: 1 1 auto;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+    <h1 class="p-4">{% block in_out_header %}Choose Category for Item{% endblock %}</h1>
+
+    <div class="d-flex flex-sm-row bd-highlight mb-3">
+        <div class="p-2 m-3 bd-highlight bg-info rounded category-container">
+            <img src="{% static 'main/electronic_image.jpg' %}" class="img-fluid rounded category-image" alt="Electronic">
+            <button class="categoryButton category-button" id="electronic">Electronic</button>
+        </div>
+        <div class="p-2 m-3 bd-highlight bg-warning rounded category-container">
+            <img src="{% static 'main/furniture_image.jpg' %}" class="img-fluid rounded category-image" alt="Furniture">
+            <button class="categoryButton category-button" id="furniture">Furniture</button>
+        </div>
+        <div class="p-2 m-3 bd-highlight bg-danger rounded category-container">
+            <img src="{% static 'main/clothes_image2.jpg' %}" class="img-fluid rounded category-image" alt="Clothing">
+            <button class="categoryButton category-button" id="clothing">Clothing</button>
+        </div>
+    </div>
+    <div class="m-3">
+        {% block in_out_form %}
+        {% endblock %}
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.querySelectorAll('.categoryButton').forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonId = this.id;
+                console.log('button clicked', buttonId);
+                var catId;
+    
+                if (buttonId === "electronic") {
+                    catId = 1;
+                } else if (buttonId === "furniture") {
+                    catId = 2;
+                } else if (buttonId === "clothing") {
+                    catId = 3;
+                } else {
+                    console.log("id lost midway");
+                    return;
+                }
+                window.location.href = `{% block table_url %}{% endblock %}${catId}`;
+            });
+        });
+    </script>
+{% endblock %}

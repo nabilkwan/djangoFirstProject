@@ -1,0 +1,166 @@
+{% extends "main/base.html" %}
+
+{%block title%}
+    Outbound Details
+{%endblock%}
+
+{% block content %}
+
+{% load static %}
+<link rel="stylesheet" href="{% static 'main/table_page.css'%}">
+
+<h1>Outbound List</h1>
+<div class="table_component" role="region" tabindex="0">
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Product SKU</th>
+        <th>Reference</th>
+        <th>Location</th>
+        <th>Quantity</th>
+        <th>Remarks</th>
+        <th>Date Shipped</th>
+        <th>Delete Edit</th>
+    </tr>
+    </thead>
+    <tbody>
+        {% for outbound in outbounds %}
+        <tr data-id="{{ outbound.id }}">
+            <td>{{outbound.id}}</td>
+            <td>{{outbound.product_sku}}</td>
+            <td>{{outbound.reference}}</td>
+            <td>{{outbound.destination}}</td>
+            <td>{{outbound.quantity}}</td>
+            <td>{{outbound.remarks}}</td>
+            <td>{{outbound.date}}</td>
+            <td>
+                <i class="bx bxs-trash-alt new-std-icon delete-icon" data-id="{{ outbound.id }}"></i>
+                <i class="bx bxs-edit new-std-icon edit-icon" data-id="{{ outbound.id }}"></i>
+            </td>
+        </tr>
+    {% empty %}
+        <tr>
+            <td colspan="8">No outbound items found</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+</div>
+
+<div class="delete-popup" id="delete-popup">
+    <a class="popup-title">Delete this record?</a>
+    <a class="popup-subtitle">Deleted records can't be recovered</a>
+    <i class='bx bx-x delete-close'></i>
+    <form action="/outbound/table/delete/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" id="delete-id">
+        <button type="submit" class="edit-delete-btn">Yes</button>
+        <button type="button" class="edit-delete-btn cancel-delete">Cancel</button>
+    </form>
+</div> 
+
+<div class="edit-popup" id="edit-popup">
+    <form action="/outbound/table/update/" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="id" id="edit-id">
+        {{ form.as_p }}
+        <button type="submit">Update</button>
+        <button type="button" class="cancel-edit">Cancel</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const deletePopup = document.getElementById('delete-popup');
+        const editPopup = document.getElementById('edit-popup');
+        const deleteClose = document.querySelector('.delete-close');
+        const cancelDelete = document.querySelector('.cancel-delete');
+        const cancelEdit = document.querySelector('.cancel-edit');
+    
+        function showPopup(popup) {
+            popup.style.display = 'block';
+        }
+    
+        function hidePopup(popup) {
+            popup.style.display = 'none';
+        }
+    
+        // Hide popups by default
+        hidePopup(deletePopup);
+        hidePopup(editPopup);
+    
+        document.querySelector('table').addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-icon')) {
+                const id = e.target.getAttribute('data-id');
+                document.getElementById('delete-id').value = id;
+                showPopup(deletePopup);
+            } else if (e.target.classList.contains('edit-icon')) {
+                const id = e.target.getAttribute('data-id');
+                const row = e.target.closest('tr');
+                populateEditForm(row);
+                document.getElementById('edit-id').value = id;
+                showPopup(editPopup);
+            }
+        });
+    
+        deleteClose.addEventListener('click', () => hidePopup(deletePopup));
+        cancelDelete.addEventListener('click', () => hidePopup(deletePopup));
+        cancelEdit.addEventListener('click', () => hidePopup(editPopup));
+    
+        function populateEditForm(row) {
+            const formInputs = editPopup.querySelectorAll('input:not([type="hidden"]), select, textarea');
+            const rowData = row.querySelectorAll('td');
+            
+            formInputs.forEach((input, index) => {
+                if (rowData[index] && index < rowData.length - 1) {  // Skip the last column (Delete Edit)
+                    input.value = rowData[index].textContent.trim();
+                }
+            });
+        }
+    
+        // Handle form submissions
+        document.querySelector('#edit-popup form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    // Handle errors
+                    console.error(data.errors);
+                }
+            });
+        });
+    
+        document.querySelector('#delete-popup form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    // Handle errors
+                    console.error('Delete failed');
+                }
+            });
+        });
+    });
+</script>
+{%endblock%}
